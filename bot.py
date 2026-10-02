@@ -116,6 +116,36 @@ def clean_name(s: str) -> str:
     return re.sub(r"[^\w\s\-\.\(\)]", "", s).strip()
 
 
+FONT_URLS = {
+    "DejaVuSans.ttf": [
+        "https://github.com/shwars/simpdf/raw/refs/heads/main/fonts/DejaVuSans.ttf",
+    ],
+    "DejaVuSans-Bold.ttf": [
+        "https://github.com/shwars/simpdf/raw/refs/heads/main/fonts/DejaVuSans-Bold.ttf",
+        "https://huggingface.co/spaces/MK-316/QRcode-with-title/resolve/main/dejavu-sans-bold.ttf",
+    ],
+}
+
+
+def ensure_fonts():
+    """Если шрифтов нет (например, на хостинге) — скачать DejaVu рядом с bot.py."""
+    for fname, urls in FONT_URLS.items():
+        if os.path.exists(fname):
+            continue
+        for url in urls:
+            try:
+                r = httpx.get(url, follow_redirects=True, timeout=30)
+                if r.status_code == 200 and len(r.content) > 100_000:
+                    with open(fname, "wb") as fh:
+                        fh.write(r.content)
+                    print(f"Шрифт скачан: {fname}", flush=True)
+                    break
+            except Exception as e:  # noqa
+                print(f"Не удалось скачать {fname}: {e}", flush=True)
+        else:
+            print(f"ВНИМАНИЕ: шрифт {fname} не найден и не скачался. Загрузи его рядом с bot.py вручную.", flush=True)
+
+
 def load_font(paths, size):
     for p in paths:
         if os.path.exists(p):
@@ -124,7 +154,8 @@ def load_font(paths, size):
 
 
 def render_table(rows: list) -> bytes:
-    f, fb, ft = load_font(FONT_REG, 20), load_font(FONT_BOLD, 20), load_font(FONT_BOLD, 28)
+    bold = FONT_BOLD + FONT_REG  # если жирного шрифта нет — берём обычный
+    f, fb, ft = load_font(FONT_REG, 20), load_font(bold, 20), load_font(bold, 28)
     cols = [("№", 50), ("Фракция", 290), ("Ник", 230), ("Должность", 190),
             ("Назначен", 130), ("Конец срока", 150), ("Статус", 120)]
     w = sum(c[1] for c in cols) + 20
@@ -342,6 +373,7 @@ async def expiry_watcher():
 
 
 async def main():
+    await asyncio.to_thread(ensure_fonts)
     asyncio.create_task(expiry_watcher())
     print("Бот запущен. Ожидаю команды...", flush=True)
     await bot.run_polling()
