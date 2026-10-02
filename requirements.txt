@@ -1,0 +1,3 @@
+vkbottle>=4.3
+httpx
+pillow
