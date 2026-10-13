@@ -22,7 +22,7 @@ import logging
 logging.getLogger("vkbottle").setLevel(logging.WARNING)
 
 # ================= НАСТРОЙКИ =================
-VK_TOKEN = os.getenv("VK_TOKEN", "vk1.a.3FiWKbH1u6g0dtlpp0E9WXxkmb52DRBRTMFhQMu9pOpMa7fnwQur9K_e6UUN8rBfzitU5RPjMb3TFycsOSbiYnDz8z62RTVKIVxoma9xaahkPDncBOv5AUn-n88gCGiSuhHg8-J0_qjCBvw1ciGlXfAAFliMIaerTw8FRCUxGIgww6bGoF4Uvh69sTSmWcb-LaV6z866GQ_LM5xORSA53w")
+os.environ["VK_TOKEN"]
 SCRIPT_URL = os.getenv("SCRIPT_URL", "https://script.google.com/macros/s/AKfycbwyx1W_8PUE8QxpGRa1zZioZFH92_iTOtx09pIWIqhAIFHv6K50NwTNp9EAPVW8LG-H/exec")
 SCRIPT_SECRET = os.getenv("SCRIPT_SECRET", "724422")
 # VK ID администраторов (всегда имеют доступ, только они выдают /vd и /unvd)
